@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "refreshed": "2026-10-27",
+  "notes": "Fallback snapshots are source-verified as of 2026-10-27. Live project site-progress.json always takes priority. Snapshots are labeled when live data cannot be reached.",
+  "projects": [
+    {
+      "id": "dinosaur",
+      "name": "Dinosaur Horror RPG",
+      "description": "A cinematic dinosaur survival-horror browser RPG with hidden Year Zero / Evolved resolution.",
+      "category": "Game",
+      "repo": "Diabolicdonut/Dinosaur-Horror-RPG",
+      "site": "https://diabolicdonut.github.io/Dinosaur-Horror-RPG/",
+      "snapshot": {
+        "revision": "v0.7.35",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 38,
+        "phase": "First-playable game foundation",
+        "completed": 5,
+        "total": 8,
+        "roadmapDocument": "docs/ROADMAP-COVERAGE.md"
+      }
+    },
+    {
+      "id": "known-world",
+      "name": "Known World",
+      "description": "A source-faithful BECMI / Mystara text RPG growing into a complete old-school roleplaying platform.",
+      "category": "Game",
+      "repo": "Diabolicdonut/BECMI-Mystara",
+      "site": "https://diabolicdonut.github.io/BECMI-Mystara/",
+      "snapshot": {
+        "revision": "v0.4.347",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 20,
+        "phase": "Source-validated Ferocity checkpoint v0.4.347",
+        "completed": 1,
+        "total": 1,
+        "roadmapDocument": "ROADMAP-COVERAGE.md"
+      }
+    },
+    {
+      "id": "bx",
+      "name": "B/X RPG",
+      "description": "An original 1981 Basic / Expert-style browser RPG focused on exploration and faithful rules.",
+      "category": "Game",
+      "repo": "Diabolicdonut/BX-RPG",
+      "site": "https://diabolicdonut.github.io/BX-RPG/",
+      "snapshot": {
+        "revision": "v0.1.7",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 19,
+        "phase": "B/X public demonstration gates",
+        "completed": 6,
+        "total": 9,
+        "roadmapDocument": "DEVELOPMENT-ROADMAP.md"
+      }
+    },
+    {
+      "id": "lovecraft",
+      "name": "Lovecraft RPG",
+      "description": "Black Meridian: investigative cosmic horror with a developing Call of Cthulhu 7e engine.",
+      "category": "Game",
+      "repo": "Diabolicdonut/Lovecraft-RPG",
+      "site": "https://diabolicdonut.github.io/Lovecraft-RPG/",
+      "snapshot": {
+        "revision": "v0.8.1",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 18,
+        "phase": "Call of Cthulhu rules transition",
+        "completed": 0,
+        "total": 5,
+        "roadmapDocument": "DEVELOPMENT-ROADMAP.md"
+      }
+    },
+    {
+      "id": "whiskey",
+      "name": "Whiskey Project",
+      "description": "Old Oak Omnibus: researched whiskey dossiers, category scoring, value and a growing catalogue.",
+      "category": "Reference",
+      "repo": "Diabolicdonut/Whiskey-Project",
+      "site": "https://diabolicdonut.github.io/Whiskey-Project/",
+      "snapshot": {
+        "revision": "R001",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 30,
+        "phase": "North American expansion candidate decisions",
+        "completed": 231,
+        "total": 238,
+        "roadmapDocument": "DEVELOPMENT-ROADMAP.md"
+      }
+    },
+    {
+      "id": "compulsive",
+      "name": "Compulsive Research",
+      "description": "An illustrated Magic: The Gathering card-history archive and Reader V3.1 editorial program.",
+      "category": "Reference",
+      "repo": "Diabolicdonut/Compulsive-Research",
+      "site": "https://diabolicdonut.github.io/Compulsive-Research/",
+      "snapshot": {
+        "revision": "Reader V3.1 / 051–060",
+        "asOf": "2026-10-27",
+        "roadmapPercent": 51,
+        "phase": "Reader V3.1 initial 100 numbered features",
+        "completed": 60,
+        "total": 100,
+        "roadmapDocument": "ROADMAP-COVERAGE.md"
+      }
+    }
+  ]
+}
