@@ -1,6 +1,6 @@
 import {
   validRepo, trustedUrl, projectFromLive, projectFromSnapshot,
-  getMilestones, summary, filterAndSort, implementationFromLive
+  getMilestones, summary, filterAndSort, implementationFromLive, displayedCompletion
 } from "./core.mjs";
 
 const els = {
@@ -117,42 +117,28 @@ function makeCard(project, index) {
   card.append(header);
   card.append(node("p", "card-description", project.description));
 
+  const display = displayedCompletion(project);
   const completion = node("section", "completion");
-  completion.setAttribute("aria-label", "Full roadmap progress");
+  completion.setAttribute("aria-label",
+    display.source === "engineering-estimate"
+      ? "Estimated total project completion"
+      : "Full roadmap acceptance progress");
   const completionHeading = node("div", "completion-head");
   add(completionHeading,
-    add(node("div"), node("span", "stat-label", "FULL ROADMAP COMPLETION"), node("span", "stat-subtitle", project.roadmapLabel)),
-    node("div", "big-percent", project.percent + "%"));
-  add(completion, completionHeading, progressBar(project.percent, project.name + ": " + project.percent + "% of the full approved roadmap"));
-  completion.append(node("div", "progress-foot", project.source === "live"
-    ? project.acceptedCount + " of " + project.gateCount + " acceptance gates complete · accepted weight only"
-    : "Fallback completion estimate · live gate details unavailable"));
-  card.append(completion);
-
-  // Engineering coverage is a second, non-acceptance metric from the same
-  // project's verified queue; absent/invalid inputs never become a guess.
-  if (project.hasImplementation) {
-    const estimate = node("section", "implementation-card");
-    estimate.setAttribute("aria-label", "Estimated engineering implementation");
-    const head = node("div", "implementation-head");
-    add(head,
-      add(node("div"), node("span", "stat-label", "ENGINEERING IMPLEMENTATION"),
-        node("span", "stat-subtitle", "Estimated verified merged work · not release acceptance")),
-      node("strong", "implementation-percent",
-        project.implementation ? "~" + project.implementation.percent + "%" : "—"));
-    estimate.append(head);
-    if (project.implementation) {
-      estimate.append(progressBar(project.implementation.points,
-        project.name + ": estimated engineering implementation " + project.implementation.points + " of 100 roadmap-weighted points", true));
-      estimate.append(node("p", "implementation-foot",
-        project.implementation.done + "/" + project.implementation.total +
-        " development assignments completed · accepted roadmap remains " + project.percent + "%"));
-    } else {
-      estimate.append(node("p", "implementation-foot",
-        "Estimate unavailable: implementation queue or evidence could not be verified. Accepted roadmap remains " + project.percent + "%."));
-    }
-    card.append(estimate);
+    add(node("div"), node("span", "stat-label", display.label),
+      node("span", "stat-subtitle", display.subtitle)),
+    node("div", "big-percent", display.percent === null ? "—" :
+      (display.source === "engineering-estimate" ? "~" : "") + display.percent + "%"));
+  completion.append(completionHeading);
+  if (display.percent !== null) {
+    completion.append(progressBar(display.points,
+      project.name + ": " + display.percent + "% " +
+      (display.source === "engineering-estimate"
+        ? "estimated total engineering implementation"
+        : "of the full accepted roadmap")));
   }
+  completion.append(node("div", "progress-foot", display.foot));
+  card.append(completion);
 
   const phase = node("section", "checkpoint");
   phase.setAttribute("aria-label", "Current delivery checkpoint");
