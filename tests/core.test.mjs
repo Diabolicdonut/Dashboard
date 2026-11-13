@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   computeRoadmap, projectFromLive, projectFromSnapshot, getMilestones,
   filterAndSort, roadmapUrl, validRepo, summary, trustedUrl,
-  implementationFromLive
+  implementationFromLive, displayedCompletion
 } from "../src/core.mjs";
 
 const project = {
@@ -117,7 +117,7 @@ const implementationQueue = [
   "| DHR-003 | Blocked | 3 | #102 | Pending future work | [#102](https://github.com/Diabolicdonut/Demo/issues/102) |"
 ].join("\n");
 
-test("engineering implementation is a source-reproducible secondary metric, not the accepted score",()=>{
+test("engineering implementation is the only visible dinosaur headline while formal acceptance stays internally unchanged",()=>{
   const site=implementationFixture();
   const built=implementationFromLive(site,implementationQueue);
   assert.deepEqual(built,{percent:70,points:69.5,done:1,total:3,accepted:38});
@@ -126,6 +126,14 @@ test("engineering implementation is a source-reproducible secondary metric, not 
   assert.equal(result.implementation.percent,70);
   assert.equal(result.implementation.done,1);
   assert.equal(result.hasImplementation,true);
+  assert.deepEqual(displayedCompletion(result),{
+    source:"engineering-estimate",
+    label:"ESTIMATED TOTAL COMPLETION",
+    subtitle:"Engineering implementation across the approved roadmap",
+    percent:70,
+    points:69.5,
+    foot:"1/3 completed assignments · evidence-based estimate, not playable readiness"
+  });
   assert.equal(summary([result]).average,38,"Portfolio-wide roadmap average remains acceptance-based");
 });
 
@@ -146,9 +154,16 @@ test("engineering estimate fails closed on incomplete, duplicate or unverified a
   assert.equal(safe.percent,38);
   assert.equal(safe.hasImplementation,true);
   assert.equal(safe.implementation,null);
+  const noEstimate=displayedCompletion(safe);
+  assert.equal(noEstimate.percent,null,
+    "A missing implementation queue must not show 38% as the Dinosaur headline");
+  assert.equal(noEstimate.source,"engineering-estimate");
+  assert.match(noEstimate.foot,/unavailable/);
   const old=projectFromLive(project,live);
   assert.equal(old.hasImplementation,false);
   assert.equal(old.implementation,null);
+  assert.equal(displayedCompletion(old).percent,20);
+  assert.equal(displayedCompletion(old).label,"FULL ROADMAP COMPLETION");
   assert.equal(projectFromSnapshot(project).hasImplementation,false);
 });
 
@@ -166,13 +181,27 @@ test("no duplicate partial evidence, no acceptance promotion, and incomplete cap
   assert.equal(computed.points,77.9);
 });
 
-test("Dashboard app advertises a distinct implementation panel and safe queue fetching",async()=>{
+test("Dashboard card uses one overall modeled number when implementation is available",async()=>{
   const {readFileSync}=await import("node:fs");
   const widget=readFileSync(new URL("../src/app.mjs",import.meta.url),"utf8");
-  assert.match(widget,/ENGINEERING IMPLEMENTATION/);
+  const card=widget.slice(widget.indexOf("function makeCard("),
+    widget.indexOf("function render()"));
+  assert.match(card,/const display = displayedCompletion\(project\)/);
+  assert.match(card,/display\.source === "engineering-estimate" \? "~" : ""/);
+  assert.match(card,/display\.foot/);
+  assert.doesNotMatch(card,/project\.percent \+ "%"/,
+    "Accepted score must not be rendered directly by the Dinosaur card");
+  assert.doesNotMatch(card,/project\.implementation\.done \+/,
+    "Do not duplicate the engineering number in a second panel");
   assert.match(widget,/raw\.githubusercontent\.com/);
   assert.match(widget,/implementationFromLive\(json, await queueResponse\.text\(\)\)/);
-  assert.match(widget,/Accepted roadmap remains|accepted roadmap remains/);
-  assert.match(widget,/project\.implementation\.done \+ "\/" \+ project\.implementation\.total/);
-  assert.match(widget,/project\.hasImplementation/);
+});
+
+test("snapshot and legacy projects retain their original headline presentation",()=>{
+  const fromSource=displayedCompletion(projectFromLive(project,live));
+  const fallback=displayedCompletion(projectFromSnapshot(project));
+  assert.equal(fromSource.percent,20);
+  assert.equal(fromSource.label,"FULL ROADMAP COMPLETION");
+  assert.equal(fallback.percent,20);
+  assert.match(fallback.foot,/Dated snapshot/);
 });
