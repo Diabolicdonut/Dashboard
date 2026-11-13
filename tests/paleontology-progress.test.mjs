@@ -29,7 +29,7 @@ test('independent estimator accepts initial valid 0% state',()=>{
  const card=displayedCompletion(projectFromLive(project,site,display));
  assert.equal(card.label,'ESTIMATED TOTAL COMPLETION');
  assert.equal(card.percent,0);
- assert.match(card.foot,/0\\/2 completed assignments/);
+ assert.ok(card.foot.includes('0/2 completed assignments'));
 });
 test('verified done and partial credits are weighted, not assignment-count percentage',()=>{
  const {site,ledger}=fixture();site.roadmap.gates[0].status='partial';
