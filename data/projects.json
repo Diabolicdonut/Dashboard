@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "refreshed": "2026-10-27",
-  "notes": "Fallback snapshots are source-verified as of 2026-10-27. Live project site-progress.json always takes priority. Snapshots are labeled when live data cannot be reached.",
+  "refreshed": "2026-11-13",
+  "notes": "Existing fallbacks last verified on their dates. New Paleontology Tracker 0% starter snapshot is provisional until its public repo and site are published. Live site-progress.json takes priority; estimated implementation is independently computed when evidence is valid.",
   "projects": [
     {
       "id": "dinosaur",
@@ -103,6 +103,23 @@
         "completed": 60,
         "total": 100,
         "roadmapDocument": "ROADMAP-COVERAGE.md"
+      }
+    },
+    {
+      "id": "paleontology",
+      "name": "Paleontology Tracker",
+      "description": "A provenance-first research hub connecting Mesozoic evolution, fossil maps, deep time and scientific evidence.",
+      "category": "Reference",
+      "repo": "Diabolicdonut/Paleontology-Tracker",
+      "site": "https://diabolicdonut.github.io/Paleontology-Tracker/",
+      "snapshot": {
+        "revision": "v0.1.0-bootstrap",
+        "asOf": "2026-11-13",
+        "roadmapPercent": 0,
+        "phase": "Bootstrap and shared contracts",
+        "completed": 0,
+        "total": 5,
+        "roadmapDocument": "docs/DEVELOPMENT-ROADMAP.md"
       }
     }
   ]
