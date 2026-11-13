@@ -77,6 +77,40 @@ export function implementationFromLive(json, markdown) {
   }
 }
 
+/**
+ * This is the project-card's ONE visible overall number, distinct from
+ * the separate accepted milestone ledger kept in source project data.
+ * For source-backed engineering trackers, never silently display a
+ * different percentage if the verified assignment ledger is unavailable.
+ */
+export function displayedCompletion(project) {
+  if (project.hasImplementation) {
+    const estimate=project.implementation;
+    return {
+      source:"engineering-estimate",
+      label:"ESTIMATED TOTAL COMPLETION",
+      subtitle:"Engineering implementation across the approved roadmap",
+      percent:estimate ? estimate.percent : null,
+      points:estimate ? estimate.points : null,
+      foot:estimate
+        ? estimate.done + "/" + estimate.total +
+          " completed assignments · evidence-based estimate, not playable readiness"
+        : "Estimate unavailable: current assignment ledger or evidence could not be verified."
+    };
+  }
+  return {
+    source:"accepted-roadmap",
+    label:"FULL ROADMAP COMPLETION",
+    subtitle:project.roadmapLabel,
+    percent:project.percent,
+    points:project.percent,
+    foot:project.source==="live"
+      ? project.acceptedCount + " of " + project.gateCount +
+        " acceptance gates complete · accepted weight only"
+      : "Dated snapshot · live gate details unavailable"
+  };
+}
+
 export function projectFromLive(project, json, implementation = null) {
   if (json?.schemaVersion !== 1 || typeof json.revision !== "string" || typeof json.asOf !== "string") {
     throw new Error("Invalid site-progress schema");
