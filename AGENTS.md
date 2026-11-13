@@ -5,8 +5,8 @@ This repository displays information from other projects. It must **not** become
 
 ## Invariants
 - Never convert a phase-specific completion fraction into the whole-product percentage.
-- Use accepted weighted roadmap gates divided by the sum of all documented weights for formal acceptance and the portfolio average; partial/planned receive zero acceptance points. A separately labeled optional implementation estimate may be shown only when reproduced from the source project's verified merged assignment ledger and audited partial evidence.
-- Do not set formal project progress based on commit age, count of tests, number of files, effort estimates or subjective confidence. Never disguise a modeled engineering estimate as accepted release completion, playable readiness, or the portfolio average.
+- Use accepted weighted roadmap gates divided by the sum of all documented weights for authoritative formal acceptance and the portfolio average; partial/planned receive zero formal acceptance points. A separately labeled, source-reproducible implementation estimate may be the ONE project-card headline where the user requests it and the source project's verified merged assignment ledger and audited partial evidence support it; never show the old accepted number as an unlabelled fallback.
+- Do not calculate source acceptance or modeled implementation from commit age, count of tests, number of files, hours, or unsupported confidence judgments. Explicitly label the headline implementation figure as an estimate and never imply playable or released product readiness; don't confuse that figure with the independently accepted portfolio average.
 - Do not silently downgrade or roll back a project revision or replace newer accepted data with a fallback snapshot.
 - On manifest network/schema failure show a visibly dated fallback, not fabricated live data. On optional implementation-queue failure, withhold the estimate while retaining a valid live acceptance manifest.
 - If an original project lacks the roadmap ledger, mark the whole-vision percentage unavailable or use an explicitly labeled prior source-verified snapshot.
