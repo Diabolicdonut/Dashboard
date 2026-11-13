@@ -1,4 +1,5 @@
 import {executionFor, implementationFor} from './implementation-progress.mjs';
+import {paleontologyImplementationFor} from './paleontology-progress.mjs';
 // Pure, dependency-free transforms used by the browser dashboard and Node tests.
 // The canonical percentages come ONLY from accepted roadmap gate weights.
 export function validRepo(repo) {
@@ -58,6 +59,16 @@ export function computeRoadmap(roadmap) {
  */
 export function implementationFromLive(json, markdown) {
   if (!json?.implementation || typeof markdown !== "string") return null;
+  if (json.implementation.method === 'verified-deliverables-v1') {
+    try {
+      const roadmap = computeRoadmap(json.roadmap);
+      if (roadmap.total !== 100) return null;
+      const computed = paleontologyImplementationFor(json, JSON.parse(markdown));
+      if (!computed || computed.accepted !== roadmap.accepted) return null;
+      return {percent:computed.percent,points:computed.points,done:computed.done,
+              total:computed.total,accepted:roadmap.percent};
+    } catch { return null; }
+  }
   try {
     const roadmap = computeRoadmap(json.roadmap);
     if (roadmap.total !== 100) return null;
