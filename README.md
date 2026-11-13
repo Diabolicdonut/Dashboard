@@ -14,6 +14,7 @@ Responsive, dependency-free GitHub Pages dashboard for build revisions, mileston
 | Lovecraft RPG | [Lovecraft-RPG](https://github.com/Diabolicdonut/Lovecraft-RPG) |
 | Whiskey Project | [Whiskey-Project](https://github.com/Diabolicdonut/Whiskey-Project) |
 | Compulsive Research | [Compulsive-Research](https://github.com/Diabolicdonut/Compulsive-Research) |
+| Paleontology Tracker | [Paleontology-Tracker](https://github.com/Diabolicdonut/Paleontology-Tracker) |
 
 ## How it stays current
 
@@ -98,3 +99,9 @@ At that verified source, the Dinosaur Horror RPG card's **single overall progres
 Malformed or unavailable queue/evidence causes only the **engineering estimate to be withheld**; the authoritative accepted score remains live. On a full manifest failure the existing visibly dated snapshot behavior applies. Other projects without this supported implementation contract are unchanged. The dashboard never fetches or executes a remote JS module, and never writes to source project repositories. If verification fails, the card shows **Estimate unavailable**, never the unrelated formally accepted percentage as an unlabeled substitute.
 
 When the source project adjusts its estimator contract, sync the read-only mirror from the source's reviewed merged commit, update its pinned SHA, and rerun the Dashboard unit tests. Keep project acceptance and portfolio-wide acceptance accounting intact. The separate engineering estimate is the primary **Dinosaur RPG card** number when available; its displayed progress must be sourced from the verified ledger, not hardcoded. No other project cards change their source of completion data.
+
+## Paleontology Tracker estimated completion (staged)
+
+A seventh Reference project uses the independent `verified-deliverables-v1` evidence method, reading `site-progress.json` and `data/development-ledger.json` from public `main`. Its bounded 100-point estimated total completion credits only documented merged-main units and reviewed partial implementations. It does not declare paleontological consensus or the proportion of all fossils known. The method and regressions live in `src/paleontology-progress.mjs` and `tests/paleontology-progress.test.mjs`.
+
+**Do not merge this onboarding PR until the new `Diabolicdonut/Paleontology-Tracker` repository and its public `main` manifests are published and verified.** The initial 0% dated fallback describes the prepared starter, not an independently verified deployment.
