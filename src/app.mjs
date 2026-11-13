@@ -1,6 +1,6 @@
 import {
   validRepo, trustedUrl, projectFromLive, projectFromSnapshot,
-  getMilestones, summary, filterAndSort
+  getMilestones, summary, filterAndSort, implementationFromLive
 } from "./core.mjs";
 
 const els = {
@@ -129,6 +129,31 @@ function makeCard(project, index) {
     : "Fallback completion estimate · live gate details unavailable"));
   card.append(completion);
 
+  // Engineering coverage is a second, non-acceptance metric from the same
+  // project's verified queue; absent/invalid inputs never become a guess.
+  if (project.hasImplementation) {
+    const estimate = node("section", "implementation-card");
+    estimate.setAttribute("aria-label", "Estimated engineering implementation");
+    const head = node("div", "implementation-head");
+    add(head,
+      add(node("div"), node("span", "stat-label", "ENGINEERING IMPLEMENTATION"),
+        node("span", "stat-subtitle", "Estimated verified merged work · not release acceptance")),
+      node("strong", "implementation-percent",
+        project.implementation ? "~" + project.implementation.percent + "%" : "—"));
+    estimate.append(head);
+    if (project.implementation) {
+      estimate.append(progressBar(project.implementation.points,
+        project.name + ": estimated engineering implementation " + project.implementation.points + " of 100 roadmap-weighted points", true));
+      estimate.append(node("p", "implementation-foot",
+        project.implementation.done + "/" + project.implementation.total +
+        " development assignments completed · accepted roadmap remains " + project.percent + "%"));
+    } else {
+      estimate.append(node("p", "implementation-foot",
+        "Estimate unavailable: implementation queue or evidence could not be verified. Accepted roadmap remains " + project.percent + "%."));
+    }
+    card.append(estimate);
+  }
+
   const phase = node("section", "checkpoint");
   phase.setAttribute("aria-label", "Current delivery checkpoint");
   const phaseLabel = node("div", "checkpoint-heading");
@@ -224,7 +249,28 @@ async function fetchManifest(project) {
     const response = await fetch(url, { mode: "cors", cache: "no-store", signal: ctrl.signal });
     if (!response.ok) throw new Error("HTTP " + response.status);
     const json = await response.json();
-    return projectFromLive(project, json);
+    let implementation = null;
+    if (json.implementation && json.execution) {
+      try {
+        const path = json.execution.source;
+        if (typeof path !== "string" || !/^[a-zA-Z0-9_./-]+$/.test(path) ||
+            path.includes("..") || path.startsWith("/")) {
+          throw new Error("Invalid public queue path");
+        }
+        // Same trusted repository as the manifest, not a user-defined URL.
+        const queueUrl = "https://raw.githubusercontent.com/" + project.repo +
+          "/main/" + path.split("/").map(encodeURIComponent).join("/");
+        const queueResponse = await fetch(queueUrl, {
+          mode: "cors", cache: "no-store", signal: ctrl.signal
+        });
+        if (!queueResponse.ok) throw new Error("Queue HTTP " + queueResponse.status);
+        implementation = implementationFromLive(json, await queueResponse.text());
+      } catch (_) {
+        // Fail closed for engineering estimates only. The already-valid
+        // formal acceptance ledger remains live and unchanged.
+      }
+    }
+    return projectFromLive(project, json, implementation);
   } finally {
     clearTimeout(timer);
   }
