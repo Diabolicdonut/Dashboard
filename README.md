@@ -19,11 +19,11 @@ Responsive, dependency-free GitHub Pages dashboard for build revisions, mileston
 
 On loading the page, on manual refresh, and every 15 minutes while the tab is visible, the browser fetches the public **site-progress.json** on the **main** branch of each configured GitHub repository. The projects are authoritative. The dashboard never edits them, reads private files, or infers progress from source commits.
 
-**Whole-roadmap completion** is 100 × (sum of weights of accepted gates) / (sum of all defined gate weights). Partial and planned gates receive no credit until accepted. The entire finite product scope is the denominator, not the sprint, checkpoint, test count or perceived engineering effort. This is not a prediction of work remaining in hours.
+**Whole-roadmap acceptance** remains 100 × (sum of weights of accepted gates) / (sum of all defined gate weights). Partial and planned gates receive no formal acceptance credit until approved. Portfolio averages and sorting continue to use accepted roadmap percentages, never engineering estimates.
 
 **Current delivery checkpoint** (a separate completed/total count) appears beneath the main bar; it is not substituted for whole-project progress.
 
-Each card includes published revision, source date, full-roadmap percent, checkpoint and phase count, current partial gates, planned gates, expandable full gate ledger with supporting evidence and acceptance descriptions, and direct links to the live site, repository and development roadmap.
+Each card includes published revision, source date, accepted full-roadmap percent, checkpoint and phase count, current partial gates, planned gates, expandable full gate ledger and links. Where provided and verified, it separately shows modeled engineering implementation (e.g., Dinosaur Horror RPG Built ~53%) and completed development assignments (20/79); these never replace acceptance.
 
 Search, category filtering and sorting are local. The portfolio average weights each project equally. It is not a combined roadmap.
 
@@ -88,3 +88,13 @@ The dashboard consists of index.html, styles.css, src/core.mjs, src/app.mjs and 
 Revision labels identify the revision published by each project manifest, **not a separately confirmed live deployed Git SHA**. Acceptance-gate labels marked partial describe open work; planned-gate ordering is not necessarily the next authorized implementation sequence. Public raw GitHub data can be temporarily delayed by caching or network errors, which is why source dates and snapshot indicators are visible. Only GitHub / this account's GitHub Pages URLs are allowed in the current registry; extend URL validation deliberately for future external hosts.
 
 The dashboard must not contain private credentials, copyrighted uploaded commercial game books, private scenario assets or sensitive source materials.
+
+## Optional implementation coverage: Dinosaur Horror RPG
+
+Dinosaur Horror RPG's `site-progress.json` now publishes a separate `implementation` evidence contract and an `execution.source` pointing to `docs/parallel-development/DEVELOPMENT-QUEUE.md`. The dashboard fetches this file from the **same project's public main branch**, computes the estimate with a source-matched deterministic parser copied to `src/implementation-progress.mjs`, and labels its result distinctly from accepted progress. Initial source pinned: Dinosaur RPG main `6e6f5778a2fe87eec9b3bd856c0b967aa451ef53` (PR #143).
+
+At that verified source, the display should show **~53% estimated implementation**, **20/79 completed development assignments**, and **38% formally accepted**. Incomplete gates can earn normalized engineering partial coverage but at most 95% until their acceptance conditions pass; approved accepted gates contribute their full original weight. Fractions for partial merged work must be explicitly audited in the authoritative project's manifest. This is a modeled coverage proxy, not validated playable product, proportion of hours worked or readiness to ship.
+
+Malformed or unavailable queue/evidence causes only the **engineering estimate to be withheld**; the authoritative accepted score remains live. On a full manifest failure the existing visibly dated snapshot behavior applies. Other projects without this supported implementation contract are unchanged. The dashboard never fetches or executes a remote JS module, and never writes to source project repositories.
+
+When the source project adjusts its estimator contract, sync the read-only mirror from the source's reviewed merged commit, update its pinned SHA, and rerun the Dashboard unit tests. Never move the accepted roadmap headline, portfolio average or sorting to the engineering estimate.
