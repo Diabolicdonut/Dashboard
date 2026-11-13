@@ -1,6 +1,6 @@
 import {
   validRepo, trustedUrl, projectFromLive, projectFromSnapshot,
-  getMilestones, summary, filterAndSort
+  getMilestones, summary, filterAndSort, implementationFromLive, displayedCompletion
 } from "./core.mjs";
 
 const els = {
@@ -117,16 +117,27 @@ function makeCard(project, index) {
   card.append(header);
   card.append(node("p", "card-description", project.description));
 
+  const display = displayedCompletion(project);
   const completion = node("section", "completion");
-  completion.setAttribute("aria-label", "Full roadmap progress");
+  completion.setAttribute("aria-label",
+    display.source === "engineering-estimate"
+      ? "Estimated total project completion"
+      : "Full roadmap acceptance progress");
   const completionHeading = node("div", "completion-head");
   add(completionHeading,
-    add(node("div"), node("span", "stat-label", "FULL ROADMAP COMPLETION"), node("span", "stat-subtitle", project.roadmapLabel)),
-    node("div", "big-percent", project.percent + "%"));
-  add(completion, completionHeading, progressBar(project.percent, project.name + ": " + project.percent + "% of the full approved roadmap"));
-  completion.append(node("div", "progress-foot", project.source === "live"
-    ? project.acceptedCount + " of " + project.gateCount + " acceptance gates complete · accepted weight only"
-    : "Fallback completion estimate · live gate details unavailable"));
+    add(node("div"), node("span", "stat-label", display.label),
+      node("span", "stat-subtitle", display.subtitle)),
+    node("div", "big-percent", display.percent === null ? "—" :
+      (display.source === "engineering-estimate" ? "~" : "") + display.percent + "%"));
+  completion.append(completionHeading);
+  if (display.percent !== null) {
+    completion.append(progressBar(display.points,
+      project.name + ": " + display.percent + "% " +
+      (display.source === "engineering-estimate"
+        ? "estimated total engineering implementation"
+        : "of the full accepted roadmap")));
+  }
+  completion.append(node("div", "progress-foot", display.foot));
   card.append(completion);
 
   const phase = node("section", "checkpoint");
@@ -224,7 +235,28 @@ async function fetchManifest(project) {
     const response = await fetch(url, { mode: "cors", cache: "no-store", signal: ctrl.signal });
     if (!response.ok) throw new Error("HTTP " + response.status);
     const json = await response.json();
-    return projectFromLive(project, json);
+    let implementation = null;
+    if (json.implementation && json.execution) {
+      try {
+        const path = json.execution.source;
+        if (typeof path !== "string" || !/^[a-zA-Z0-9_./-]+$/.test(path) ||
+            path.includes("..") || path.startsWith("/")) {
+          throw new Error("Invalid public queue path");
+        }
+        // Same trusted repository as the manifest, not a user-defined URL.
+        const queueUrl = "https://raw.githubusercontent.com/" + project.repo +
+          "/main/" + path.split("/").map(encodeURIComponent).join("/");
+        const queueResponse = await fetch(queueUrl, {
+          mode: "cors", cache: "no-store", signal: ctrl.signal
+        });
+        if (!queueResponse.ok) throw new Error("Queue HTTP " + queueResponse.status);
+        implementation = implementationFromLive(json, await queueResponse.text());
+      } catch (_) {
+        // Fail closed for engineering estimates only. The already-valid
+        // formal acceptance ledger remains live and unchanged.
+      }
+    }
+    return projectFromLive(project, json, implementation);
   } finally {
     clearTimeout(timer);
   }

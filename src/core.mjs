@@ -1,3 +1,4 @@
+import {executionFor, implementationFor} from './implementation-progress.mjs';
 // Pure, dependency-free transforms used by the browser dashboard and Node tests.
 // The canonical percentages come ONLY from accepted roadmap gate weights.
 export function validRepo(repo) {
@@ -50,7 +51,67 @@ export function computeRoadmap(roadmap) {
   };
 }
 
-export function projectFromLive(project, json) {
+/**
+ * A separately labeled, source-reproducible engineering estimate. The project
+ * manifest and current queue remain the authority; the Dashboard never guesses
+ * or substitutes this number for formal acceptance.
+ */
+export function implementationFromLive(json, markdown) {
+  if (!json?.implementation || typeof markdown !== "string") return null;
+  try {
+    const roadmap = computeRoadmap(json.roadmap);
+    if (roadmap.total !== 100) return null;
+    const inputs = {...roadmap, done:roadmap.accepted};
+    const execution = executionFor(json, markdown, inputs);
+    const modeled = implementationFor(json, execution, inputs);
+    if (!execution || !modeled || modeled.acceptedPoints !== roadmap.accepted ||
+        modeled.totalAssignments !== execution.counts.total ||
+        modeled.completeAssignments !== execution.counts.done) return null;
+    return {
+      percent:modeled.percent, points:modeled.points,
+      done:execution.counts.done, total:execution.counts.total,
+      accepted:roadmap.percent
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * This is the project-card's ONE visible overall number, distinct from
+ * the separate accepted milestone ledger kept in source project data.
+ * For source-backed engineering trackers, never silently display a
+ * different percentage if the verified assignment ledger is unavailable.
+ */
+export function displayedCompletion(project) {
+  if (project.hasImplementation) {
+    const estimate=project.implementation;
+    return {
+      source:"engineering-estimate",
+      label:"ESTIMATED TOTAL COMPLETION",
+      subtitle:"Engineering implementation across the approved roadmap",
+      percent:estimate ? estimate.percent : null,
+      points:estimate ? estimate.points : null,
+      foot:estimate
+        ? estimate.done + "/" + estimate.total +
+          " completed assignments · evidence-based estimate, not playable readiness"
+        : "Estimate unavailable: current assignment ledger or evidence could not be verified."
+    };
+  }
+  return {
+    source:"accepted-roadmap",
+    label:"FULL ROADMAP COMPLETION",
+    subtitle:project.roadmapLabel,
+    percent:project.percent,
+    points:project.percent,
+    foot:project.source==="live"
+      ? project.acceptedCount + " of " + project.gateCount +
+        " acceptance gates complete · accepted weight only"
+      : "Dated snapshot · live gate details unavailable"
+  };
+}
+
+export function projectFromLive(project, json, implementation = null) {
   if (json?.schemaVersion !== 1 || typeof json.revision !== "string" || typeof json.asOf !== "string") {
     throw new Error("Invalid site-progress schema");
   }
@@ -64,6 +125,8 @@ export function projectFromLive(project, json) {
     revision: json.revision,
     asOf: json.asOf,
     percent: roadmap.percent,
+    hasImplementation: Boolean(json.implementation),
+    implementation,
     gates: roadmap.gates,
     acceptedCount: roadmap.acceptedCount,
     gateCount: roadmap.gates.length,
@@ -85,6 +148,8 @@ export function projectFromSnapshot(project, error = "") {
   return {
     ...project,
     source: "snapshot",
+    hasImplementation: false,
+    implementation: null,
     revision: snapshot.revision,
     asOf: snapshot.asOf,
     percent: snapshot.roadmapPercent,
